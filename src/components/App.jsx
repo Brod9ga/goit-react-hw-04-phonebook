@@ -1,12 +1,14 @@
-import React from "react";
-import { nanoid } from "nanoid";
+import React from 'react';
+import { nanoid } from 'nanoid';
+import ContactForm from './ContactForm/ContactForm';
+import ContactList from './ContactList/ContactList';
+import Filter from './Filter/Filter';
+import PropTypes from 'prop-types';
 
 export class App extends React.Component {
   state = {
     contacts: [],
-    name: "",
-    number: "",
-    filter: ""
+    filter: '',
   };
 
   handleDelete = contactId => {
@@ -18,41 +20,26 @@ export class App extends React.Component {
     });
   };
 
-  hendelInput = event => {
-    this.setState({
-      [event.target.name]: event.target.value
-    });
-  };
-
-  handleSubmit = event => {
-    event.preventDefault();
-    const { name, number, contacts } = this.state;
-
-    if (name.trim() === "" || number.trim() === "") {
-      // Проверка на пустые поля
-      return;
-    }
+  handleAddContact = (name, number) => {
+    const { contacts } = this.state;
 
     const existingContact = contacts.find(
       contact => contact.name.toLowerCase() === name.toLowerCase()
     );
 
     if (existingContact) {
-      // Если контакт с таким именем уже существует, выводим предупреждение
-      alert("Контакт с таким именем уже существует!");
+      alert('Контакт с таким именем уже существует!');
       return;
     }
 
     const newContact = {
-      id: nanoid(), // Генерация уникального идентификатора
+      id: nanoid(),
       name,
-      number
+      number,
     };
 
     this.setState(prevState => ({
       contacts: [...prevState.contacts, newContact],
-      name: "",
-      number: ""
     }));
   };
 
@@ -61,63 +48,39 @@ export class App extends React.Component {
   };
 
   render() {
-    const { filter, contacts } = this.state;
+    const { contacts, filter } = this.state;
 
-    // Фильтрация контактов по имени
     const filteredContacts = contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
 
     return (
       <div>
-        
-        <form onSubmit={this.handleSubmit}>
-          <div>
-            <h2>Name</h2>
-            <input
-              onChange={this.hendelInput}
-              value={this.state.name}
-              type="text"
-              name="name"
-              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-              required
-            />
-          </div>
-          <div>
-            <h2>Phone number</h2>
-            <input
-              onChange={this.hendelInput}
-              value={this.state.number}
-              type="tel"
-              name="number"
-              pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-              required
-            />
-          </div>
-          <button>Add number</button>
-        </form>
-        <div>
-          <h2>Contacts</h2>
-          <input
-          type="text"
-          placeholder="Search by name"
-          value={filter}
-          onChange={this.handleFilterChange}
-        />
-          <ul>
-            {filteredContacts.map(contact => (
-              <li key={contact.id}>
-                {contact.name}: {contact.number}
-                <button onClick={() => this.handleDelete(contact.id)}>
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <h1>Phonеbook</h1>
+
+        <ContactForm onAddContact={this.handleAddContact} />
+
+        <h2>Contacts</h2>
+
+        <Filter filter={filter} onChange={this.handleFilterChange} />
+
+        <ContactList contacts={filteredContacts} onDelete={this.handleDelete} />
       </div>
     );
   }
 }
+
+App.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+    })
+  ),
+  filter: PropTypes.string.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+  handleAddContact: PropTypes.func.isRequired,
+  handleFilterChange: PropTypes.func.isRequired,
+  
+};
