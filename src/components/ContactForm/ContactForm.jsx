@@ -4,7 +4,14 @@ import { useEffect } from "react";
 const ContactForm = ({ onAddContact }) => {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
-
+  const changeForm = event => {
+    const { name, value } = event.target;
+    if (name === 'name') {
+      setName(value);
+    } else if (name === 'number') {
+      setNumber(value);
+    }
+  };
   const handleSubmit = event => {
     event.preventDefault();
     onAddContact(name, number);
@@ -22,7 +29,7 @@ const ContactForm = ({ onAddContact }) => {
       <div>
         <h2>Name</h2>
         <input
-          onChange={event => setName(event.target.value)}
+          onChange={changeForm}
           value={name}
           type="text"
           name="name"
@@ -34,7 +41,7 @@ const ContactForm = ({ onAddContact }) => {
       <div>
         <h2>Phone number</h2>
         <input
-          onChange={event => setNumber(event.target.value)}
+          onChange={changeForm}
           value={number}
           type="tel"
           name="number"
